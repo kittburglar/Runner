@@ -1,0 +1,25 @@
+dependencies: \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/cocos/base/CCDataVisitor.cpp \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/CCRef.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/CCPlatformMacros.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/ccConfig.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/CCPlatformConfig.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/CCPlatformDefine.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/ios/CCPlatformDefine-ios.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCBool.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/CCDataVisitor.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCInteger.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/CCConsole.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/ccMacros.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/CCStdC.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/ios/CCStdC-ios.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/ccRandom.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/platform/CCCommon.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCFloat.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCDouble.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCString.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCArray.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/ccCArray.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCDictionary.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/base/uthash.h \
+  /Users/kittiphongxayasane/KittiphongXayasane/Runner/cocos2d/build/../cocos/deprecated/CCSet.h
