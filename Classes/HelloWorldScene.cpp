@@ -17,6 +17,11 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
+void HelloWorld::jump(Sprite* s){
+auto moveBy = MoveBy::create(2, Vec2(50,10));
+s->runAction(moveBy);
+}
+
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
@@ -71,6 +76,40 @@ bool HelloWorld::init()
 
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
+
+    //initialize my sprite
+    auto mySprite = Sprite::create("megaman.png");
+    
+    //  Create a "one by one" touch event listener
+    // (processes one touch at a time)
+    auto listener1 = EventListenerTouchOneByOne::create();
+    
+    // trigger when you push down
+    listener1->onTouchBegan = [=](Touch* touch, Event* event){
+        //event.getCurrentTarget().jump()
+        CCLOG("onTouchBegan");
+        //jump(mySprite);
+        auto moveBy = MoveBy::create(2, Vec2(50,10));
+        mySprite->runAction(moveBy);
+        return true; // if you are consuming it
+    };
+    
+    // trigger when moving touch
+    listener1->onTouchMoved = [](Touch* touch, Event* event){
+        // your code
+    };
+    
+    // trigger when you let up
+    listener1->onTouchEnded = [=](Touch* touch, Event* event){
+        // your code
+    };
+    
+    // Add listener
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
+    
+    mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    this->addChild(mySprite, 0);
+    
     
     return true;
 }
