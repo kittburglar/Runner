@@ -15,6 +15,8 @@ public:
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
     
+    bool onContactBegin(cocos2d::PhysicsContact& contact);
+    
     void jump(cocos2d::Sprite* s);
     // implement the "static create()" method manually
     CREATE_FUNC(GameplayScene);

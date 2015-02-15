@@ -80,7 +80,7 @@ bool HelloWorld::init()
     //start button
     auto startButton = MenuItemImage::create("Bluebtn.png","Bluebtn.png", CC_CALLBACK_1(HelloWorld::startButtonCallback, this));
     
-    startButton->setPosition(100,200);
+    startButton->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/3 + origin.y));
     
     auto startButtonMenu = Menu::create(startButton, NULL);
     startButtonMenu->setPosition(Point::ZERO);

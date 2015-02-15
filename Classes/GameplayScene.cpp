@@ -5,7 +5,7 @@ USING_NS_CC;
 Scene* GameplayScene::createScene()
 {
     // 'scene' is an autorelease object
-    auto scene = Scene::create();
+    auto scene = Scene::createWithPhysics();
     
     // 'layer' is an autorelease object
     auto layer = GameplayScene::create();
@@ -21,6 +21,14 @@ void GameplayScene::jump(Sprite* s){
     auto moveBy = MoveBy::create(2, Vec2(50,10));
     s->runAction(moveBy);
 }
+
+bool GameplayScene::onContactBegin(PhysicsContact& contact)
+{
+    auto bodyA = contact.getShapeA()->getBody();
+    auto bodyB = contact.getShapeB()->getBody();
+    return true;
+}
+
 
 // on "init" you need to initialize your instance
 bool GameplayScene::init()
@@ -68,6 +76,7 @@ bool GameplayScene::init()
     // add the label as a child to this layer
     this->addChild(label, 1);
     
+    /*
     // add "HelloWorld" splash screen"
     auto sprite = Sprite::create("HelloWorld.png");
     
@@ -76,11 +85,26 @@ bool GameplayScene::init()
     
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
+    */
     
     
+    // create a static PhysicsBody
+    auto mySpritePhysicsBody = PhysicsBody::createBox(Size(65.0f , 81.0f ), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    //mySpritePhysicsBody->setDynamic(false);
+    mySpritePhysicsBody->setGravityEnable(true);
     
+    #pragma mark - mySprite
     //initialize my sprite
     auto mySprite = Sprite::create("megaman.png");
+    mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    
+    // sprite will use physicsBody
+    mySprite->setPhysicsBody(mySpritePhysicsBody);
+    
+    //add contact event listener
+    auto contactListener = EventListenerPhysicsContact::create();
+    contactListener->onContactBegin = CC_CALLBACK_1(GameplayScene::onContactBegin, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
     
     //  Create a "one by one" touch event listener
     // (processes one touch at a time)
@@ -107,7 +131,7 @@ bool GameplayScene::init()
     // Add listener
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
     
-    mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    
     this->addChild(mySprite, 0);
     
     
