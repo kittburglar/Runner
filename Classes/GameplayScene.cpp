@@ -87,13 +87,26 @@ bool GameplayScene::init()
     this->addChild(sprite, 0);
     */
     
+    auto node = Node::create();
+    CCSize winSize = CCDirector::getInstance()->getWinSize();
+    auto borderPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, winSize.height));
+    borderPhysicsBody->setDynamic(false);
+    node->setPosition(Vec2(winSize.width/2 + origin.x, winSize.height/2 + origin.y));
+    node->setPhysicsBody(borderPhysicsBody);
+    this->addChild(node, 0);
+    
+    
+    #pragma mark - mySprite
+
     
     // create a static PhysicsBody
     auto mySpritePhysicsBody = PhysicsBody::createBox(Size(65.0f , 81.0f ), PhysicsMaterial(0.1f, 1.0f, 0.0f));
-    //mySpritePhysicsBody->setDynamic(false);
+    //mySpritePhysicsBody->setDynamic(true);
     mySpritePhysicsBody->setGravityEnable(true);
     
-    #pragma mark - mySprite
+    
+ 
+    
     //initialize my sprite
     auto mySprite = Sprite::create("megaman.png");
     mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
