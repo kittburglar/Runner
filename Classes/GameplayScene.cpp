@@ -6,7 +6,7 @@ Scene* GameplayScene::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::createWithPhysics();
-    
+    scene->getPhysicsWorld()->setSpeed(2.0f);
     // 'layer' is an autorelease object
     auto layer = GameplayScene::create();
     
@@ -27,8 +27,10 @@ void GameplayScene::jump(Sprite* s){
 
 bool GameplayScene::onContactBegin(PhysicsContact& contact)
 {
+    CCLOG("onContactBegin!");
     auto bodyA = contact.getShapeA()->getBody();
     auto bodyB = contact.getShapeB()->getBody();
+    
     return true;
 }
 
@@ -90,26 +92,25 @@ bool GameplayScene::init()
     this->addChild(sprite, 0);
     */
     
+    #pragma mark - bounding box
     auto node = Node::create();
     CCSize winSize = CCDirector::getInstance()->getWinSize();
     auto borderPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, winSize.height));
     borderPhysicsBody->setDynamic(false);
+    borderPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     node->setPosition(Vec2(winSize.width/2 + origin.x, winSize.height/2 + origin.y));
     node->setPhysicsBody(borderPhysicsBody);
     this->addChild(node, 0);
     
     
     #pragma mark - mySprite
-
     
     // create a static PhysicsBody
     auto mySpritePhysicsBody = PhysicsBody::createBox(Size(65.0f , 81.0f ), PhysicsMaterial(0.1f, 1.0f, 0.0f));
     //mySpritePhysicsBody->setDynamic(true);
     mySpritePhysicsBody->setGravityEnable(true);
-    
-    
- 
-    
+    mySpritePhysicsBody->setRotationEnable(false);
+    mySpritePhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     //initialize my sprite
     auto mySprite = Sprite::create("megaman.png");
     mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
@@ -122,6 +123,7 @@ bool GameplayScene::init()
     contactListener->onContactBegin = CC_CALLBACK_1(GameplayScene::onContactBegin, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
     
+    
     //  Create a "one by one" touch event listener
     // (processes one touch at a time)
     auto listener1 = EventListenerTouchOneByOne::create();
@@ -133,7 +135,7 @@ bool GameplayScene::init()
         auto moveBy = MoveBy::create(2, Vec2(50,10));
         mySprite->runAction(moveBy);
         */
-        mySprite->getPhysicsBody()->setVelocity(Vec2(0,100));
+        mySprite->getPhysicsBody()->setVelocity(Vec2(0,250));
         return true; // if you are consuming it
     };
     
@@ -149,6 +151,8 @@ bool GameplayScene::init()
     
     // Add listener
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
+    
+    
     
     
     this->addChild(mySprite, 0);
