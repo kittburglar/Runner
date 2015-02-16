@@ -18,8 +18,11 @@ Scene* GameplayScene::createScene()
 }
 
 void GameplayScene::jump(Sprite* s){
+    /*
     auto moveBy = MoveBy::create(2, Vec2(50,10));
     s->runAction(moveBy);
+    */
+    s->getPhysicsBody()->setVelocity(Vec2(0,100));
 }
 
 bool GameplayScene::onContactBegin(PhysicsContact& contact)
@@ -126,8 +129,11 @@ bool GameplayScene::init()
     // trigger when you push down
     listener1->onTouchBegan = [=](Touch* touch, Event* event){
         CCLOG("onTouchBegan");
+        /*
         auto moveBy = MoveBy::create(2, Vec2(50,10));
         mySprite->runAction(moveBy);
+        */
+        mySprite->getPhysicsBody()->setVelocity(Vec2(0,100));
         return true; // if you are consuming it
     };
     
