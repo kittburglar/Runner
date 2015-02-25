@@ -6,7 +6,7 @@ Scene* GameplayScene::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::createWithPhysics();
-    scene->getPhysicsWorld()->setSpeed(2.0f);
+    scene->getPhysicsWorld()->setSpeed(3.0f);
     // 'layer' is an autorelease object
     auto layer = GameplayScene::create();
     
@@ -30,6 +30,32 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     CCLOG("onContactBegin!");
     auto bodyA = contact.getShapeA()->getBody();
     auto bodyB = contact.getShapeB()->getBody();
+    //0 = Floor
+    //1 = Player
+    //2 = Enemy
+    //3 = Left Wall
+    if ((bodyA->getTag() == 1) && (bodyB->getTag() == 0)) {
+        bodyA->setVelocity(Vec2(0.0f, 0.0f));
+    }
+    else if ((bodyA->getTag() == 0) && (bodyB->getTag() == 1)) {
+        bodyB->setVelocity(Vec2(0.0f, 0.0f));
+    }
+    else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 3)) {
+        //bodyA->setVelocity(Vec2(0.0f, 0.0f));
+        removeChild(bodyA->getNode());
+    }
+    else if ((bodyA->getTag() == 3) && (bodyB->getTag() == 2)) {
+        //bodyB->setVelocity(Vec2(0.0f, 0.0f));
+        removeChild(bodyB->getNode());
+    }
+    else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 1)) {
+        //bodyA->setVelocity(Vec2(0.0f, 0.0f));
+        removeChild(bodyA->getNode());
+    }
+    else if ((bodyA->getTag() == 1) && (bodyB->getTag() == 2)) {
+        //bodyB->setVelocity(Vec2(0.0f, 0.0f));
+        removeChild(bodyB->getNode());
+    }
     
     return true;
 }
@@ -81,42 +107,45 @@ bool GameplayScene::init()
     // add the label as a child to this layer
     this->addChild(label, 1);
     
-    /*
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-    
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-    
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
-    */
-    
     #pragma mark - bounding box
-    auto node = Node::create();
+    auto floorNode = Node::create();
+    auto leftWallNode = Node::create();
     CCSize winSize = CCDirector::getInstance()->getWinSize();
-    auto borderPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, winSize.height));
-    borderPhysicsBody->setDynamic(false);
-    borderPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
-    node->setPosition(Vec2(winSize.width/2 + origin.x, winSize.height/2 + origin.y));
-    node->setPhysicsBody(borderPhysicsBody);
-    this->addChild(node, 0);
+    
+    auto floorPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
+    floorPhysicsBody->setDynamic(false);
+    floorPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    floorPhysicsBody->setTag(0);
+    floorNode->setPosition(Vec2(winSize.width/2 + origin.x, origin.y));
+    floorNode->setPhysicsBody(floorPhysicsBody);
+    this->addChild(floorNode, 0);
+    
+    auto leftWallPhysicsBody = PhysicsBody::createEdgeBox(Size(1, winSize.height));
+    leftWallPhysicsBody->setDynamic(false);
+    leftWallPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    leftWallPhysicsBody->setTag(3);
+    leftWallNode->setPosition(Vec2(origin.x, winSize.height/2 + origin.y));
+    leftWallNode->setPhysicsBody(leftWallPhysicsBody);
+    this->addChild(leftWallNode, 0);
     
     
     #pragma mark - mySprite
-    
+    auto mySprite = Sprite::create("megaman.png");
     // create a static PhysicsBody
-    auto mySpritePhysicsBody = PhysicsBody::createBox(Size(65.0f , 81.0f ), PhysicsMaterial(0.1f, 1.0f, 0.0f));
-    //mySpritePhysicsBody->setDynamic(true);
+    auto mySpritePhysicsBody = PhysicsBody::createBox(Size(mySprite->getSpriteFrame()->getRect().getMaxX() * mySprite->getScale(), mySprite->getSpriteFrame()->getRect().getMaxY() * mySprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
     mySpritePhysicsBody->setGravityEnable(true);
     mySpritePhysicsBody->setRotationEnable(false);
     mySpritePhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    mySpritePhysicsBody->setTag(1);
     //initialize my sprite
-    auto mySprite = Sprite::create("megaman.png");
+    
     mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
     
     // sprite will use physicsBody
     mySprite->setPhysicsBody(mySpritePhysicsBody);
+    
+    //make sprite bigger
+    mySprite->setScale(2.0);
     
     //add contact event listener
     auto contactListener = EventListenerPhysicsContact::create();
@@ -131,11 +160,7 @@ bool GameplayScene::init()
     // trigger when you push down
     listener1->onTouchBegan = [=](Touch* touch, Event* event){
         CCLOG("onTouchBegan");
-        /*
-        auto moveBy = MoveBy::create(2, Vec2(50,10));
-        mySprite->runAction(moveBy);
-        */
-        mySprite->getPhysicsBody()->setVelocity(Vec2(0,250));
+        mySprite->getPhysicsBody()->setVelocity(Vec2(0,230));
         return true; // if you are consuming it
     };
     
@@ -157,10 +182,45 @@ bool GameplayScene::init()
     
     this->addChild(mySprite, 0);
     
+    //Trigger spriteSpawn at interval
+    this->schedule(schedule_selector(GameplayScene::spawnRandomSprite), 2.0);
     
     return true;
 }
 
+
+void GameplayScene::spawnRandomSprite(float delta)
+{
+    CCLOG("spawnRandomSprite!");
+    auto enemySprite = Sprite::create("megaman.png");
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+
+    // create a static PhysicsBody
+    auto enemyPhysicsBody = PhysicsBody::createBox(Size(enemySprite->getSpriteFrame()->getRect().getMaxX() * enemySprite->getScale() , enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    //mySpritePhysicsBody->setDynamic(true);
+    enemyPhysicsBody->setGravityEnable(false);
+    enemyPhysicsBody->setRotationEnable(false);
+    enemyPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    enemyPhysicsBody->setTag(2);
+    //initialize my sprite
+    
+    enemySprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height)));
+    
+    // sprite will use physicsBody
+    enemySprite->setPhysicsBody(enemyPhysicsBody);
+    
+    //make sprite bigger
+    enemySprite->setScale(2.0);
+
+    auto moveBy = MoveBy::create(2, Vec2(-visibleSize.width,0));
+    enemySprite->runAction(moveBy);
+    enemySprite->setAnchorPoint(Vec2(1, 0.5));
+    
+    this->addChild(enemySprite, 0);
+    
+    
+    
+}
 
 void GameplayScene::menuCloseCallback(Ref* pSender)
 {

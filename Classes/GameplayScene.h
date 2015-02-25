@@ -17,6 +17,8 @@ public:
     
     bool onContactBegin(cocos2d::PhysicsContact& contact);
     
+    void spawnRandomSprite(float delta);
+    
     void jump(cocos2d::Sprite* s);
     // implement the "static create()" method manually
     CREATE_FUNC(GameplayScene);
