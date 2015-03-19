@@ -28,6 +28,8 @@ void GameplayScene::jump(Sprite* s){
 bool GameplayScene::onContactBegin(PhysicsContact& contact)
 {
     CCLOG("onContactBegin!");
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
     auto bodyA = contact.getShapeA()->getBody();
     auto bodyB = contact.getShapeB()->getBody();
     //0 = Floor
@@ -36,25 +38,26 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     //3 = Left Wall
     if ((bodyA->getTag() == 1) && (bodyB->getTag() == 0)) {
         bodyA->setVelocity(Vec2(0.0f, 0.0f));
+        touchedGround = true;
     }
     else if ((bodyA->getTag() == 0) && (bodyB->getTag() == 1)) {
         bodyB->setVelocity(Vec2(0.0f, 0.0f));
+        touchedGround = true;
     }
     else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 3)) {
-        //bodyA->setVelocity(Vec2(0.0f, 0.0f));
         removeChild(bodyA->getNode());
     }
     else if ((bodyA->getTag() == 3) && (bodyB->getTag() == 2)) {
-        //bodyB->setVelocity(Vec2(0.0f, 0.0f));
         removeChild(bodyB->getNode());
     }
     else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 1)) {
-        //bodyA->setVelocity(Vec2(0.0f, 0.0f));
         removeChild(bodyA->getNode());
+        bodyB->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyB->getPosition().y));
+        
     }
     else if ((bodyA->getTag() == 1) && (bodyB->getTag() == 2)) {
-        //bodyB->setVelocity(Vec2(0.0f, 0.0f));
         removeChild(bodyB->getNode());
+        bodyA->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyA->getPosition().y));
     }
     
     return true;
@@ -98,7 +101,9 @@ bool GameplayScene::init()
     // add a label shows "Hello World"
     // create and initialize a label
     
-    auto label = Label::createWithTTF("Gameplay Scene", "fonts/Marker Felt.ttf", 24);
+    label = Label::createWithTTF("Gameplay Scene", "fonts/Marker Felt.ttf", 24);
+    
+    touchedGround = false;
     
     // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,
@@ -107,9 +112,13 @@ bool GameplayScene::init()
     // add the label as a child to this layer
     this->addChild(label, 1);
     
+    //initalize score
+    score = 0;
+    
     #pragma mark - bounding box
     auto floorNode = Node::create();
     auto leftWallNode = Node::create();
+    auto roofNode = Node::create();
     CCSize winSize = CCDirector::getInstance()->getWinSize();
     
     auto floorPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
@@ -128,6 +137,13 @@ bool GameplayScene::init()
     leftWallNode->setPhysicsBody(leftWallPhysicsBody);
     this->addChild(leftWallNode, 0);
     
+    auto roofPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
+    roofPhysicsBody->setDynamic(false);
+    roofPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    roofPhysicsBody->setTag(4);
+    roofNode->setPosition(Vec2(winSize.width/2 + origin.x, origin.y + winSize.height));
+    roofNode->setPhysicsBody(roofPhysicsBody);
+    this->addChild(roofNode, 0);
     
     #pragma mark - mySprite
     auto mySprite = Sprite::create("megaman.png");
@@ -160,7 +176,8 @@ bool GameplayScene::init()
     // trigger when you push down
     listener1->onTouchBegan = [=](Touch* touch, Event* event){
         CCLOG("onTouchBegan");
-        mySprite->getPhysicsBody()->setVelocity(Vec2(0,230));
+        mySprite->getPhysicsBody()->setVelocity(Vec2(0,170));
+        
         return true; // if you are consuming it
     };
     
@@ -177,15 +194,24 @@ bool GameplayScene::init()
     // Add listener
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
     
-    
-    
-    
     this->addChild(mySprite, 0);
     
     //Trigger spriteSpawn at interval
     this->schedule(schedule_selector(GameplayScene::spawnRandomSprite), 2.0);
     
+    this->schedule(schedule_selector(GameplayScene::scoreTimer), 0.01);
+    
+    
     return true;
+}
+
+void GameplayScene::scoreTimer(float delta){
+    label->setString(std::to_string(score));
+    score = score + 10;
+}
+
+void GameplayScene::rightButtonCallback(Ref* pSender){
+    Director::getInstance()->pushScene(GameplayScene::createScene());
 }
 
 
@@ -196,7 +222,9 @@ void GameplayScene::spawnRandomSprite(float delta)
     Size visibleSize = Director::getInstance()->getVisibleSize();
 
     // create a static PhysicsBody
-    auto enemyPhysicsBody = PhysicsBody::createBox(Size(enemySprite->getSpriteFrame()->getRect().getMaxX() * enemySprite->getScale() , enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    auto enemyPhysicsBody = PhysicsBody::createBox(Size(enemySprite->getSpriteFrame()->getRect().getMaxX() * enemySprite->getScale() ,
+                                                        enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale()),
+                                                   PhysicsMaterial(0.1f, 1.0f, 0.0f));
     //mySpritePhysicsBody->setDynamic(true);
     enemyPhysicsBody->setGravityEnable(false);
     enemyPhysicsBody->setRotationEnable(false);
@@ -204,7 +232,7 @@ void GameplayScene::spawnRandomSprite(float delta)
     enemyPhysicsBody->setTag(2);
     //initialize my sprite
     
-    enemySprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height)));
+    enemySprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height - enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale())));
     
     // sprite will use physicsBody
     enemySprite->setPhysicsBody(enemyPhysicsBody);
@@ -212,7 +240,7 @@ void GameplayScene::spawnRandomSprite(float delta)
     //make sprite bigger
     enemySprite->setScale(2.0);
 
-    auto moveBy = MoveBy::create(2, Vec2(-visibleSize.width,0));
+    auto moveBy = MoveBy::create(4, Vec2(-visibleSize.width,0));
     enemySprite->runAction(moveBy);
     enemySprite->setAnchorPoint(Vec2(1, 0.5));
     

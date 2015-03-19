@@ -12,6 +12,8 @@ public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();
     
+    int score;
+    
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
     
@@ -19,8 +21,17 @@ public:
     
     void spawnRandomSprite(float delta);
     
+    void scoreTimer(float delta);
+    
+    bool touchedGround;
+    
+    cocos2d::Label *label;
+    
     void jump(cocos2d::Sprite* s);
     // implement the "static create()" method manually
+    
+    void rightButtonCallback(cocos2d::Ref* pSender);
+    
     CREATE_FUNC(GameplayScene);
 };
 
