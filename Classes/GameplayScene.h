@@ -14,12 +14,16 @@ public:
     
     int score;
     
+    float speed;
+    
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
     
     bool onContactBegin(cocos2d::PhysicsContact& contact);
     
     void spawnRandomSprite(float delta);
+    
+    void spawnTurdSprite(cocos2d::PhysicsBody* playerBody);
     
     void scoreTimer(float delta);
     

@@ -17,14 +17,7 @@ Scene* GameplayScene::createScene()
     return scene;
 }
 
-void GameplayScene::jump(Sprite* s){
-    /*
-    auto moveBy = MoveBy::create(2, Vec2(50,10));
-    s->runAction(moveBy);
-    */
-    s->getPhysicsBody()->setVelocity(Vec2(0,100));
-}
-
+#pragma mark Collisions
 bool GameplayScene::onContactBegin(PhysicsContact& contact)
 {
     CCLOG("onContactBegin!");
@@ -34,32 +27,65 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     auto bodyB = contact.getShapeB()->getBody();
     //0 = Floor
     //1 = Player
-    //2 = Enemy
+    //2 = food
     //3 = Left Wall
-    if ((bodyA->getTag() == 1) && (bodyB->getTag() == 0)) {
+    //4 = turd
+    #define FLOOR_TAG 0
+    #define PLAYER_TAG 1
+    #define FOOD_TAG 2
+    #define LEFT_WALL_TAG 3
+    #define TURD_TAG 4
+    
+    if ((bodyA->getTag() == PLAYER_TAG) && (bodyB->getTag() == FLOOR_TAG)) {
         bodyA->setVelocity(Vec2(0.0f, 0.0f));
         touchedGround = true;
     }
-    else if ((bodyA->getTag() == 0) && (bodyB->getTag() == 1)) {
+    else if ((bodyA->getTag() == FLOOR_TAG) && (bodyB->getTag() == PLAYER_TAG)) {
         bodyB->setVelocity(Vec2(0.0f, 0.0f));
         touchedGround = true;
     }
-    else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 3)) {
+    else if ((bodyA->getTag() == FOOD_TAG) && (bodyB->getTag() == LEFT_WALL_TAG)) {
         removeChild(bodyA->getNode());
     }
-    else if ((bodyA->getTag() == 3) && (bodyB->getTag() == 2)) {
+    else if ((bodyA->getTag() == LEFT_WALL_TAG) && (bodyB->getTag() == FOOD_TAG)) {
         removeChild(bodyB->getNode());
     }
-    else if ((bodyA->getTag() == 2) && (bodyB->getTag() == 1)) {
+    else if ((bodyA->getTag() == FOOD_TAG) && (bodyB->getTag() == PLAYER_TAG)) {
         removeChild(bodyA->getNode());
         bodyB->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyB->getPosition().y));
+        spawnTurdSprite(bodyB);
+        
         
     }
-    else if ((bodyA->getTag() == 1) && (bodyB->getTag() == 2)) {
+    else if ((bodyA->getTag() == PLAYER_TAG) && (bodyB->getTag() == FOOD_TAG)) {
         removeChild(bodyB->getNode());
         bodyA->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyA->getPosition().y));
+        spawnTurdSprite(bodyA);
     }
-    
+    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == LEFT_WALL_TAG)) {
+        removeChild(bodyA->getNode());
+    }
+    else if ((bodyA->getTag() == LEFT_WALL_TAG) && (bodyB->getTag() == TURD_TAG)) {
+        removeChild(bodyB->getNode());
+    }
+    //Turd Contact
+    else if ((bodyA->getTag() == FLOOR_TAG) && (bodyB->getTag() == TURD_TAG)) {
+        cocos2d::Action* action = getActionByTag(10);
+        if (!action) {
+            auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
+            moveBy->setTag(10);
+            bodyB->getNode()->runAction(moveBy);
+        }
+        
+    }
+    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == FLOOR_TAG)) {
+        cocos2d::Action* action = getActionByTag(10);
+        if (!action) {
+            auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
+            moveBy->setTag(10);
+            bodyA->getNode()->runAction(moveBy);
+        }
+    }
     return true;
 }
 
@@ -114,6 +140,7 @@ bool GameplayScene::init()
     
     //initalize score
     score = 0;
+    speed = 4;
     
     #pragma mark - bounding box
     auto floorNode = Node::create();
@@ -206,45 +233,65 @@ bool GameplayScene::init()
 }
 
 void GameplayScene::scoreTimer(float delta){
-    label->setString(std::to_string(score));
-    score = score + 10;
+    if (touchedGround) {
+        label->setString(std::to_string(score));
+        score = score + 10;
+    }
+    
 }
 
-void GameplayScene::rightButtonCallback(Ref* pSender){
-    Director::getInstance()->pushScene(GameplayScene::createScene());
+void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
+    CCLOG("Spawning turd!");
+    auto turdSprite = Sprite::create("megaman.png");
+    
+    // create a static PhysicsBody
+    auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    turdPhysicsBody->setGravityEnable(true);
+    turdPhysicsBody->setRotationEnable(false);
+    turdPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    turdPhysicsBody->setTag(4);
+    
+    
+    
+    // sprite will use physicsBody
+    turdSprite->setPhysicsBody(turdPhysicsBody);
+    
+    //make sprite bigger
+    turdSprite->setScale(2.0);
+    
+    //set position
+    turdSprite->setPosition(Vec2(playerBody->getPosition().x - turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), playerBody->getPosition().y));
+    
+    this->addChild(turdSprite, 0);
 }
-
 
 void GameplayScene::spawnRandomSprite(float delta)
 {
     CCLOG("spawnRandomSprite!");
-    auto enemySprite = Sprite::create("megaman.png");
+    auto foodSprite = Sprite::create("megaman.png");
     Size visibleSize = Director::getInstance()->getVisibleSize();
 
     // create a static PhysicsBody
-    auto enemyPhysicsBody = PhysicsBody::createBox(Size(enemySprite->getSpriteFrame()->getRect().getMaxX() * enemySprite->getScale() ,
-                                                        enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale()),
-                                                   PhysicsMaterial(0.1f, 1.0f, 0.0f));
-    //mySpritePhysicsBody->setDynamic(true);
-    enemyPhysicsBody->setGravityEnable(false);
-    enemyPhysicsBody->setRotationEnable(false);
-    enemyPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
-    enemyPhysicsBody->setTag(2);
-    //initialize my sprite
+    auto foodPhysicsBody = PhysicsBody::createBox(Size(foodSprite->getSpriteFrame()->getRect().getMaxX() * foodSprite->getScale(), foodSprite->getSpriteFrame()->getRect().getMaxY() * foodSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    foodPhysicsBody->setGravityEnable(false);
+    foodPhysicsBody->setRotationEnable(false);
+    foodPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    foodPhysicsBody->setTag(2);
     
-    enemySprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height - enemySprite->getSpriteFrame()->getRect().getMaxY() * enemySprite->getScale())));
+    //set position
+    foodSprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height - foodSprite->getSpriteFrame()->getRect().getMaxY() * foodSprite->getScale())));
     
     // sprite will use physicsBody
-    enemySprite->setPhysicsBody(enemyPhysicsBody);
+    foodSprite->setPhysicsBody(foodPhysicsBody);
     
     //make sprite bigger
-    enemySprite->setScale(2.0);
+    foodSprite->setScale(2.0);
 
-    auto moveBy = MoveBy::create(4, Vec2(-visibleSize.width,0));
-    enemySprite->runAction(moveBy);
-    enemySprite->setAnchorPoint(Vec2(1, 0.5));
+    auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
+    foodSprite->runAction(moveBy);
+    foodSprite->setAnchorPoint(Vec2(1, 0.5));
     
-    this->addChild(enemySprite, 0);
+    this->addChild(foodSprite, 0);
     
     
     
