@@ -13,8 +13,11 @@ public:
     virtual bool init();
     
     int score;
+    int time;
+    int enemySpawnRate;
+    int runningSpeed;
     
-    float speed;
+    float timeOnScreen;
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
@@ -26,6 +29,8 @@ public:
     void spawnTurdSprite(cocos2d::PhysicsBody* playerBody);
     
     void scoreTimer(float delta);
+    
+    void decreaseTimeOnScreen(float delta);
     
     bool touchedGround;
     

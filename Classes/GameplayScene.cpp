@@ -67,25 +67,9 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     }
     else if ((bodyA->getTag() == LEFT_WALL_TAG) && (bodyB->getTag() == TURD_TAG)) {
         removeChild(bodyB->getNode());
+
     }
-    //Turd Contact
-    else if ((bodyA->getTag() == FLOOR_TAG) && (bodyB->getTag() == TURD_TAG)) {
-        cocos2d::Action* action = getActionByTag(10);
-        if (!action) {
-            auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
-            moveBy->setTag(10);
-            bodyB->getNode()->runAction(moveBy);
-        }
-        
-    }
-    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == FLOOR_TAG)) {
-        cocos2d::Action* action = getActionByTag(10);
-        if (!action) {
-            auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
-            moveBy->setTag(10);
-            bodyA->getNode()->runAction(moveBy);
-        }
-    }
+    
     return true;
 }
 
@@ -140,7 +124,9 @@ bool GameplayScene::init()
     
     //initalize score
     score = 0;
-    speed = 4;
+    timeOnScreen = 4;
+    enemySpawnRate = 30;
+    runningSpeed = 10;
     
     #pragma mark - bounding box
     auto floorNode = Node::create();
@@ -154,7 +140,7 @@ bool GameplayScene::init()
     floorPhysicsBody->setTag(0);
     floorNode->setPosition(Vec2(winSize.width/2 + origin.x, origin.y));
     floorNode->setPhysicsBody(floorPhysicsBody);
-    this->addChild(floorNode, 0);
+    this->addChild(floorNode, 1);
     
     auto leftWallPhysicsBody = PhysicsBody::createEdgeBox(Size(1, winSize.height));
     leftWallPhysicsBody->setDynamic(false);
@@ -162,7 +148,7 @@ bool GameplayScene::init()
     leftWallPhysicsBody->setTag(3);
     leftWallNode->setPosition(Vec2(origin.x, winSize.height/2 + origin.y));
     leftWallNode->setPhysicsBody(leftWallPhysicsBody);
-    this->addChild(leftWallNode, 0);
+    this->addChild(leftWallNode, 1);
     
     auto roofPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
     roofPhysicsBody->setDynamic(false);
@@ -170,7 +156,7 @@ bool GameplayScene::init()
     roofPhysicsBody->setTag(4);
     roofNode->setPosition(Vec2(winSize.width/2 + origin.x, origin.y + winSize.height));
     roofNode->setPhysicsBody(roofPhysicsBody);
-    this->addChild(roofNode, 0);
+    this->addChild(roofNode, 1);
     
     #pragma mark - mySprite
     auto mySprite = Sprite::create("megaman.png");
@@ -221,21 +207,48 @@ bool GameplayScene::init()
     // Add listener
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
     
-    this->addChild(mySprite, 0);
+    this->addChild(mySprite, 1);
     
     //Trigger spriteSpawn at interval
-    this->schedule(schedule_selector(GameplayScene::spawnRandomSprite), 2.0);
+    //this->schedule(schedule_selector(GameplayScene::spawnRandomSprite), 0.5);
     
-    this->schedule(schedule_selector(GameplayScene::scoreTimer), 0.01);
+    this->schedule(schedule_selector(GameplayScene::scoreTimer), 0.001);
     
+    //this->schedule(schedule_selector(GameplayScene::decreaseTimeOnScreen), 5.0);
     
     return true;
 }
 
 void GameplayScene::scoreTimer(float delta){
+    time = time + 1;
+    CCLOG("%d", time);
     if (touchedGround) {
         label->setString(std::to_string(score));
         score = score + 10;
+    }
+
+    if (time % enemySpawnRate == 0) {
+        //int number = arc4random() % 3;
+        //if (number == 0) {
+        //    spawnRandomSprite(delta);
+        //}
+        CCLOG("Spawn enemy");
+        spawnRandomSprite(delta);
+    }
+    
+    if (time % runningSpeed == 0) {
+        decreaseTimeOnScreen(delta);
+    }
+    
+}
+
+void GameplayScene::decreaseTimeOnScreen(float delta){
+    #define changeInSpeed 0.01
+    if (timeOnScreen - changeInSpeed > 1) {
+       timeOnScreen = timeOnScreen - changeInSpeed;
+    }
+    else{
+        CCLOG("max speed reached!");
     }
     
 }
@@ -243,6 +256,7 @@ void GameplayScene::scoreTimer(float delta){
 void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
     CCLOG("Spawning turd!");
     auto turdSprite = Sprite::create("megaman.png");
+    Size visibleSize = Director::getInstance()->getVisibleSize();
     
     // create a static PhysicsBody
     auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
@@ -262,8 +276,12 @@ void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
     //set position
     turdSprite->setPosition(Vec2(playerBody->getPosition().x - turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), playerBody->getPosition().y));
     
-    this->addChild(turdSprite, 0);
-}
+    auto moveTo = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
+    turdSprite->runAction(moveTo);
+
+    this->addChild(turdSprite, 1);
+    
+    }
 
 void GameplayScene::spawnRandomSprite(float delta)
 {
@@ -287,11 +305,11 @@ void GameplayScene::spawnRandomSprite(float delta)
     //make sprite bigger
     foodSprite->setScale(2.0);
 
-    auto moveBy = MoveBy::create(speed, Vec2(-visibleSize.width,0));
+    auto moveBy = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
     foodSprite->runAction(moveBy);
     foodSprite->setAnchorPoint(Vec2(1, 0.5));
     
-    this->addChild(foodSprite, 0);
+    this->addChild(foodSprite, 1);
     
     
     
