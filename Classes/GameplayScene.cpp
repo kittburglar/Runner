@@ -255,13 +255,13 @@ void GameplayScene::decreaseTimeOnScreen(float delta){
 
 void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
     CCLOG("Spawning turd!");
-    auto turdSprite = Sprite::create("megaman.png");
+    auto turdSprite = Sprite::create("poopy.png");
     Size visibleSize = Director::getInstance()->getVisibleSize();
     
     // create a static PhysicsBody
     auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
     turdPhysicsBody->setGravityEnable(true);
-    turdPhysicsBody->setRotationEnable(false);
+    //turdPhysicsBody->setRotationEnable(false);
     turdPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     turdPhysicsBody->setTag(4);
     
@@ -286,7 +286,55 @@ void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
 void GameplayScene::spawnRandomSprite(float delta)
 {
     CCLOG("spawnRandomSprite!");
-    auto foodSprite = Sprite::create("megaman.png");
+    int foodnumber = arc4random() % 14;
+    auto foodSprite = Sprite::create();
+    switch (foodnumber) {
+        case 0:
+            foodSprite = Sprite::create("icecream2.png");
+            break;
+        case 1:
+            foodSprite = Sprite::create("icecream.png");
+            break;
+        case 2:
+            foodSprite = Sprite::create("cake2.png");
+            break;
+        case 3:
+            foodSprite = Sprite::create("cake.png");
+            break;
+        case 4:
+            foodSprite = Sprite::create("pizza.png");
+            break;
+        case 5:
+            foodSprite = Sprite::create("shrimp4.png");
+            break;
+        case 6:
+            foodSprite = Sprite::create("shrimp3.png");
+            break;
+        case 7:
+            foodSprite = Sprite::create("shrimp2.png");
+            break;
+        case 8:
+            foodSprite = Sprite::create("eggs.png");
+            break;
+        case 9:
+            foodSprite = Sprite::create("sushishrimp.png");
+            break;
+        case 10:
+            foodSprite = Sprite::create("chicken.png");
+            break;
+        case 11:
+            foodSprite = Sprite::create("burger.png");
+            break;
+        case 12:
+            foodSprite = Sprite::create("fries.png");
+            break;
+        case 13:
+            foodSprite = Sprite::create("donut.png");
+            break;
+        default:
+            break;
+    }
+    
     Size visibleSize = Director::getInstance()->getVisibleSize();
 
     // create a static PhysicsBody

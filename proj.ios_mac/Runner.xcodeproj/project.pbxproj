@@ -72,6 +72,23 @@
 		F8255E721A8F785700F75534 /* GameplayScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8255E6F1A8F785600F75534 /* GameplayScene.cpp */; };
 		F8255E741A8F7B2900F75534 /* Bluebtn.png in Resources */ = {isa = PBXBuildFile; fileRef = F8255E731A8F7B2900F75534 /* Bluebtn.png */; };
 		F8255E751A8F7B2900F75534 /* Bluebtn.png in Resources */ = {isa = PBXBuildFile; fileRef = F8255E731A8F7B2900F75534 /* Bluebtn.png */; };
+		F885CEBD1AC1709C003FCFA8 /* poop.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEBC1AC1709C003FCFA8 /* poop.png */; };
+		F885CECD1AC2AC0A003FCFA8 /* icecream2.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEBE1AC2AC0A003FCFA8 /* icecream2.png */; };
+		F885CECE1AC2AC0A003FCFA8 /* icecream.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEBF1AC2AC0A003FCFA8 /* icecream.png */; };
+		F885CECF1AC2AC0A003FCFA8 /* cake2.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC01AC2AC0A003FCFA8 /* cake2.png */; };
+		F885CED01AC2AC0A003FCFA8 /* cupcake.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC11AC2AC0A003FCFA8 /* cupcake.png */; };
+		F885CED11AC2AC0A003FCFA8 /* cake.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC21AC2AC0A003FCFA8 /* cake.png */; };
+		F885CED21AC2AC0A003FCFA8 /* pizza.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC31AC2AC0A003FCFA8 /* pizza.png */; };
+		F885CED31AC2AC0A003FCFA8 /* shrimp4.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC41AC2AC0A003FCFA8 /* shrimp4.png */; };
+		F885CED41AC2AC0A003FCFA8 /* shrimp3.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC51AC2AC0A003FCFA8 /* shrimp3.png */; };
+		F885CED51AC2AC0A003FCFA8 /* shrimp2.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC61AC2AC0A003FCFA8 /* shrimp2.png */; };
+		F885CED61AC2AC0A003FCFA8 /* eggs.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC71AC2AC0A003FCFA8 /* eggs.png */; };
+		F885CED71AC2AC0A003FCFA8 /* sushishrimp.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC81AC2AC0A003FCFA8 /* sushishrimp.png */; };
+		F885CED81AC2AC0A003FCFA8 /* chicken.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEC91AC2AC0A003FCFA8 /* chicken.png */; };
+		F885CED91AC2AC0A003FCFA8 /* burger.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CECA1AC2AC0A003FCFA8 /* burger.png */; };
+		F885CEDA1AC2AC0A003FCFA8 /* fries.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CECB1AC2AC0A003FCFA8 /* fries.png */; };
+		F885CEDB1AC2AC0A003FCFA8 /* donut.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CECC1AC2AC0A003FCFA8 /* donut.png */; };
+		F885CEDD1AC2B780003FCFA8 /* poopy.png in Resources */ = {isa = PBXBuildFile; fileRef = F885CEDC1AC2B780003FCFA8 /* poopy.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -166,6 +183,23 @@
 		F8255E6F1A8F785600F75534 /* GameplayScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameplayScene.cpp; sourceTree = "<group>"; };
 		F8255E701A8F785600F75534 /* GameplayScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameplayScene.h; sourceTree = "<group>"; };
 		F8255E731A8F7B2900F75534 /* Bluebtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Bluebtn.png; sourceTree = "<group>"; };
+		F885CEBC1AC1709C003FCFA8 /* poop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = poop.png; sourceTree = "<group>"; };
+		F885CEBE1AC2AC0A003FCFA8 /* icecream2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icecream2.png; sourceTree = "<group>"; };
+		F885CEBF1AC2AC0A003FCFA8 /* icecream.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icecream.png; sourceTree = "<group>"; };
+		F885CEC01AC2AC0A003FCFA8 /* cake2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cake2.png; sourceTree = "<group>"; };
+		F885CEC11AC2AC0A003FCFA8 /* cupcake.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cupcake.png; sourceTree = "<group>"; };
+		F885CEC21AC2AC0A003FCFA8 /* cake.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cake.png; sourceTree = "<group>"; };
+		F885CEC31AC2AC0A003FCFA8 /* pizza.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pizza.png; sourceTree = "<group>"; };
+		F885CEC41AC2AC0A003FCFA8 /* shrimp4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shrimp4.png; sourceTree = "<group>"; };
+		F885CEC51AC2AC0A003FCFA8 /* shrimp3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shrimp3.png; sourceTree = "<group>"; };
+		F885CEC61AC2AC0A003FCFA8 /* shrimp2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shrimp2.png; sourceTree = "<group>"; };
+		F885CEC71AC2AC0A003FCFA8 /* eggs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eggs.png; sourceTree = "<group>"; };
+		F885CEC81AC2AC0A003FCFA8 /* sushishrimp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sushishrimp.png; sourceTree = "<group>"; };
+		F885CEC91AC2AC0A003FCFA8 /* chicken.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chicken.png; sourceTree = "<group>"; };
+		F885CECA1AC2AC0A003FCFA8 /* burger.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = burger.png; sourceTree = "<group>"; };
+		F885CECB1AC2AC0A003FCFA8 /* fries.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fries.png; sourceTree = "<group>"; };
+		F885CECC1AC2AC0A003FCFA8 /* donut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = donut.png; sourceTree = "<group>"; };
+		F885CEDC1AC2B780003FCFA8 /* poopy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = poopy.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -283,7 +317,24 @@
 				521A8EA819F11F5000D177D7 /* fonts */,
 				3EACC98E19EE6D4300EB3C5E /* res */,
 				46880B7619C43A67006E1F66 /* CloseNormal.png */,
+				F885CEBE1AC2AC0A003FCFA8 /* icecream2.png */,
+				F885CEBF1AC2AC0A003FCFA8 /* icecream.png */,
+				F885CEC01AC2AC0A003FCFA8 /* cake2.png */,
+				F885CEC11AC2AC0A003FCFA8 /* cupcake.png */,
+				F885CEC21AC2AC0A003FCFA8 /* cake.png */,
+				F885CEC31AC2AC0A003FCFA8 /* pizza.png */,
+				F885CEC41AC2AC0A003FCFA8 /* shrimp4.png */,
+				F885CEC51AC2AC0A003FCFA8 /* shrimp3.png */,
+				F885CEC61AC2AC0A003FCFA8 /* shrimp2.png */,
+				F885CEC71AC2AC0A003FCFA8 /* eggs.png */,
+				F885CEC81AC2AC0A003FCFA8 /* sushishrimp.png */,
+				F885CEC91AC2AC0A003FCFA8 /* chicken.png */,
+				F885CECA1AC2AC0A003FCFA8 /* burger.png */,
+				F885CECB1AC2AC0A003FCFA8 /* fries.png */,
+				F885CECC1AC2AC0A003FCFA8 /* donut.png */,
 				F8255E731A8F7B2900F75534 /* Bluebtn.png */,
+				F885CEBC1AC1709C003FCFA8 /* poop.png */,
+				F885CEDC1AC2B780003FCFA8 /* poopy.png */,
 				F8255E6C1A8F506300F75534 /* megaman.png */,
 				46880B7719C43A67006E1F66 /* CloseSelected.png */,
 				46880B7A19C43A67006E1F66 /* HelloWorld.png */,
@@ -453,15 +504,24 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F885CECE1AC2AC0A003FCFA8 /* icecream.png in Resources */,
 				5087E78117EB970100C73F5D /* Icon-120.png in Resources */,
 				5087E78617EB970100C73F5D /* Icon-76.png in Resources */,
+				F885CED51AC2AC0A003FCFA8 /* shrimp2.png in Resources */,
 				5087E77F17EB970100C73F5D /* Default@2x.png in Resources */,
+				F885CEDB1AC2AC0A003FCFA8 /* donut.png in Resources */,
+				F885CEDA1AC2AC0A003FCFA8 /* fries.png in Resources */,
+				F885CED01AC2AC0A003FCFA8 /* cupcake.png in Resources */,
 				50EF629917ECD46A001EB2F8 /* Icon-100.png in Resources */,
 				5087E78317EB970100C73F5D /* Icon-152.png in Resources */,
 				F8255E741A8F7B2900F75534 /* Bluebtn.png in Resources */,
+				F885CED41AC2AC0A003FCFA8 /* shrimp3.png in Resources */,
 				46880B8119C43A67006E1F66 /* HelloWorld.png in Resources */,
+				F885CED81AC2AC0A003FCFA8 /* chicken.png in Resources */,
 				46880B7D19C43A67006E1F66 /* CloseSelected.png in Resources */,
+				F885CED21AC2AC0A003FCFA8 /* pizza.png in Resources */,
 				5087E77D17EB970100C73F5D /* Default-568h@2x.png in Resources */,
+				F885CECD1AC2AC0A003FCFA8 /* icecream2.png in Resources */,
 				5087E78517EB970100C73F5D /* Icon-72.png in Resources */,
 				521A8E6519F0C34300D177D7 /* Default-736h@3x.png in Resources */,
 				521A8EA919F11F5000D177D7 /* fonts in Resources */,
@@ -472,10 +532,18 @@
 				50EF629617ECD46A001EB2F8 /* Icon-40.png in Resources */,
 				5087E78217EB970100C73F5D /* Icon-144.png in Resources */,
 				3EACC98F19EE6D4300EB3C5E /* res in Resources */,
+				F885CED91AC2AC0A003FCFA8 /* burger.png in Resources */,
+				F885CEDD1AC2B780003FCFA8 /* poopy.png in Resources */,
 				50EF629817ECD46A001EB2F8 /* Icon-80.png in Resources */,
 				5087E78417EB970100C73F5D /* Icon-57.png in Resources */,
+				F885CED31AC2AC0A003FCFA8 /* shrimp4.png in Resources */,
+				F885CED11AC2AC0A003FCFA8 /* cake.png in Resources */,
+				F885CED61AC2AC0A003FCFA8 /* eggs.png in Resources */,
+				F885CEBD1AC1709C003FCFA8 /* poop.png in Resources */,
 				5087E77E17EB970100C73F5D /* Default.png in Resources */,
 				521A8E6419F0C34300D177D7 /* Default-667h@2x.png in Resources */,
+				F885CECF1AC2AC0A003FCFA8 /* cake2.png in Resources */,
+				F885CED71AC2AC0A003FCFA8 /* sushishrimp.png in Resources */,
 				46880B7B19C43A67006E1F66 /* CloseNormal.png in Resources */,
 				50EF629717ECD46A001EB2F8 /* Icon-58.png in Resources */,
 			);
