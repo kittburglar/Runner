@@ -2,6 +2,8 @@
 
 USING_NS_CC;
 
+static const int kScrollSpeed = 3;
+
 Scene* GameplayScene::createScene()
 {
     // 'scene' is an autorelease object
@@ -25,11 +27,7 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     auto bodyA = contact.getShapeA()->getBody();
     auto bodyB = contact.getShapeB()->getBody();
-    //0 = Floor
-    //1 = Player
-    //2 = food
-    //3 = Left Wall
-    //4 = turd
+    
     #define FLOOR_TAG 0
     #define PLAYER_TAG 1
     #define FOOD_TAG 2
@@ -54,8 +52,6 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
         removeChild(bodyA->getNode());
         bodyB->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyB->getPosition().y));
         spawnTurdSprite(bodyB);
-        
-        
     }
     else if ((bodyA->getTag() == PLAYER_TAG) && (bodyB->getTag() == FOOD_TAG)) {
         removeChild(bodyB->getNode());
@@ -86,6 +82,7 @@ bool GameplayScene::init()
     
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    touchedGround = false;
     
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
@@ -108,18 +105,10 @@ bool GameplayScene::init()
     /////////////////////////////
     // 3. add your codes below...
     
-    // add a label shows "Hello World"
     // create and initialize a label
-    
     label = Label::createWithTTF("Gameplay Scene", "fonts/Marker Felt.ttf", 24);
-    
-    touchedGround = false;
-    
-    // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,
                             origin.y + visibleSize.height - label->getContentSize().height));
-    
-    // add the label as a child to this layer
     this->addChild(label, 1);
     
     //initalize score
@@ -159,64 +148,78 @@ bool GameplayScene::init()
     this->addChild(roofNode, 1);
     
     #pragma mark - mySprite
+    //Player sprite
     auto mySprite = Sprite::create("megaman.png");
-    // create a static PhysicsBody
     auto mySpritePhysicsBody = PhysicsBody::createBox(Size(mySprite->getSpriteFrame()->getRect().getMaxX() * mySprite->getScale(), mySprite->getSpriteFrame()->getRect().getMaxY() * mySprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
     mySpritePhysicsBody->setGravityEnable(true);
     mySpritePhysicsBody->setRotationEnable(false);
     mySpritePhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     mySpritePhysicsBody->setTag(1);
-    //initialize my sprite
-    
     mySprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-    
-    // sprite will use physicsBody
     mySprite->setPhysicsBody(mySpritePhysicsBody);
-    
-    //make sprite bigger
     mySprite->setScale(2.0);
+    this->addChild(mySprite, 1);
     
     //add contact event listener
     auto contactListener = EventListenerPhysicsContact::create();
     contactListener->onContactBegin = CC_CALLBACK_1(GameplayScene::onContactBegin, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
     
-    
-    //  Create a "one by one" touch event listener
-    // (processes one touch at a time)
+    //Tap event
     auto listener1 = EventListenerTouchOneByOne::create();
-    
     // trigger when you push down
     listener1->onTouchBegan = [=](Touch* touch, Event* event){
         CCLOG("onTouchBegan");
         mySprite->getPhysicsBody()->setVelocity(Vec2(0,170));
-        
-        return true; // if you are consuming it
+        return true;
     };
-    
     // trigger when moving touch
     listener1->onTouchMoved = [](Touch* touch, Event* event){
-        // your code
     };
-    
     // trigger when you let up
     listener1->onTouchEnded = [=](Touch* touch, Event* event){
-        // your code
     };
-    
-    // Add listener
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener1, this);
     
-    this->addChild(mySprite, 1);
+    //Scrolling background
+    _bg1 = Sprite::create("cloudbackground.png");
+    _bg1->setPosition(Vec2(0, visibleSize.height * 0.5f));
+    _bg1->setAnchorPoint(Vec2(0,0.5f));
+    this->addChild(_bg1, 0);
     
-    //Trigger spriteSpawn at interval
-    //this->schedule(schedule_selector(GameplayScene::spawnRandomSprite), 0.5);
+    _bg2 = Sprite::create("cloudbackground.png");
+    _bg2->setPosition(Vec2(_bg2->getContentSize().width, _bg1->getPosition().y));
+    _bg2->setAnchorPoint(Vec2(0,0.5f));
+    this->addChild(_bg2, 0);
     
+    //Schedule events
     this->schedule(schedule_selector(GameplayScene::scoreTimer), 0.001);
-    
-    //this->schedule(schedule_selector(GameplayScene::decreaseTimeOnScreen), 5.0);
-    
+    this->scheduleUpdate();
+   
     return true;
+}
+
+void GameplayScene::update(float delta){
+    CCLOG("updating");
+    
+    cocos2d::Vec2 bg1Pos = _bg1->getPosition();
+    cocos2d::Vec2 bg2Pos = _bg2->getPosition();
+    
+    bg1Pos.x -= kScrollSpeed;
+    bg2Pos.x -= kScrollSpeed;
+    
+    // move scrolling background back from left to right end to achieve "endless" scrolling
+    if (bg1Pos.x < -(_bg1->getContentSize().width))
+    {
+        bg1Pos.x += _bg1->getContentSize().width;
+        bg2Pos.x += _bg2->getContentSize().width;
+    }
+    
+    // remove any inaccuracies by assigning only int values (this prevents floating point rounding errors accumulating over time)
+    bg1Pos.x = (int)bg1Pos.x;
+    bg2Pos.x = (int)bg2Pos.x;
+    _bg1->setPosition(bg1Pos);
+    _bg2->setPosition(bg2Pos);
 }
 
 void GameplayScene::scoreTimer(float delta){
@@ -226,16 +229,10 @@ void GameplayScene::scoreTimer(float delta){
         label->setString(std::to_string(score));
         score = score + 10;
     }
-
     if (time % enemySpawnRate == 0) {
-        //int number = arc4random() % 3;
-        //if (number == 0) {
-        //    spawnRandomSprite(delta);
-        //}
         CCLOG("Spawn enemy");
         spawnRandomSprite(delta);
     }
-    
     if (time % runningSpeed == 0) {
         decreaseTimeOnScreen(delta);
     }
@@ -261,19 +258,10 @@ void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
     // create a static PhysicsBody
     auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
     turdPhysicsBody->setGravityEnable(true);
-    //turdPhysicsBody->setRotationEnable(false);
     turdPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     turdPhysicsBody->setTag(4);
-    
-    
-    
-    // sprite will use physicsBody
     turdSprite->setPhysicsBody(turdPhysicsBody);
-    
-    //make sprite bigger
     turdSprite->setScale(2.0);
-    
-    //set position
     turdSprite->setPosition(Vec2(playerBody->getPosition().x - turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), playerBody->getPosition().y));
     
     auto moveTo = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
@@ -343,14 +331,8 @@ void GameplayScene::spawnRandomSprite(float delta)
     foodPhysicsBody->setRotationEnable(false);
     foodPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     foodPhysicsBody->setTag(2);
-    
-    //set position
     foodSprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height - foodSprite->getSpriteFrame()->getRect().getMaxY() * foodSprite->getScale())));
-    
-    // sprite will use physicsBody
     foodSprite->setPhysicsBody(foodPhysicsBody);
-    
-    //make sprite bigger
     foodSprite->setScale(2.0);
 
     auto moveBy = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
@@ -358,10 +340,8 @@ void GameplayScene::spawnRandomSprite(float delta)
     foodSprite->setAnchorPoint(Vec2(1, 0.5));
     
     this->addChild(foodSprite, 1);
-    
-    
-    
 }
+
 
 void GameplayScene::menuCloseCallback(Ref* pSender)
 {

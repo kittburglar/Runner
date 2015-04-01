@@ -41,7 +41,13 @@ public:
     
     void rightButtonCallback(cocos2d::Ref* pSender);
     
+    cocos2d::CCSprite* _bg1;
+    cocos2d::CCSprite* _bg2;
+    
+    void update(float delta);
+
     CREATE_FUNC(GameplayScene);
+    
 };
 
 #endif // __GAMEPLAY_SCENE_H__
