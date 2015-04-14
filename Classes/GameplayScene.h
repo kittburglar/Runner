@@ -16,6 +16,7 @@ public:
     int time;
     int enemySpawnRate;
     int runningSpeed;
+    int enemyHitpoints;
     
     float timeOnScreen;
     
@@ -28,11 +29,17 @@ public:
     
     void spawnTurdSprite(cocos2d::PhysicsBody* playerBody);
     
+    void spawnEnemySprite();
+    
     void scoreTimer(float delta);
     
     void decreaseTimeOnScreen(float delta);
     
+    void actionEnd(void);
+    
     bool touchedGround;
+    
+    void hitLogic(void);
     
     cocos2d::Label *label;
     
@@ -43,6 +50,8 @@ public:
     
     cocos2d::CCSprite* _bg1;
     cocos2d::CCSprite* _bg2;
+    
+    cocos2d::CCSprite* enemySprite;
     
     void update(float delta);
 

@@ -9,6 +9,7 @@ Scene* GameplayScene::createScene()
     // 'scene' is an autorelease object
     auto scene = Scene::createWithPhysics();
     scene->getPhysicsWorld()->setSpeed(3.0f);
+    scene->getPhysicsWorld()->setGravity(Vect(0,-50.0f));
     // 'layer' is an autorelease object
     auto layer = GameplayScene::create();
     
@@ -22,7 +23,7 @@ Scene* GameplayScene::createScene()
 #pragma mark Collisions
 bool GameplayScene::onContactBegin(PhysicsContact& contact)
 {
-    CCLOG("onContactBegin!");
+    //CCLOG("onContactBegin!");
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     auto bodyA = contact.getShapeA()->getBody();
@@ -33,6 +34,7 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
     #define FOOD_TAG 2
     #define LEFT_WALL_TAG 3
     #define TURD_TAG 4
+    #define ENEMY_TAG 5
     
     if ((bodyA->getTag() == PLAYER_TAG) && (bodyB->getTag() == FLOOR_TAG)) {
         bodyA->setVelocity(Vec2(0.0f, 0.0f));
@@ -58,14 +60,38 @@ bool GameplayScene::onContactBegin(PhysicsContact& contact)
         bodyA->getNode()->setPosition(Vec2(visibleSize.width/2 + origin.x, bodyA->getPosition().y));
         spawnTurdSprite(bodyA);
     }
-    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == LEFT_WALL_TAG)) {
-        removeChild(bodyA->getNode());
+    else if ((bodyA->getTag() == FOOD_TAG) && (bodyB->getTag() == TURD_TAG)) {
+        return false;
     }
-    else if ((bodyA->getTag() == LEFT_WALL_TAG) && (bodyB->getTag() == TURD_TAG)) {
+    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == FOOD_TAG)) {
+        return false;
+    }
+    else if ((bodyA->getTag() == FLOOR_TAG) && (bodyB->getTag() == TURD_TAG)) {
+        bodyB->setVelocity(Vec2(bodyB->getVelocity().x, 0.0f));
+    }
+    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == FLOOR_TAG)) {
+        bodyA->setVelocity(Vec2(bodyA->getVelocity().x, 0.0f));
+    }
+    else if ((bodyA->getTag() == FOOD_TAG) && (bodyB->getTag() == ENEMY_TAG)) {
+        return false;
+    }
+    else if ((bodyA->getTag() == ENEMY_TAG) && (bodyB->getTag() == FOOD_TAG)) {
+        return false;
+    }
+    else if ((bodyA->getTag() == ENEMY_TAG) && (bodyB->getTag() == TURD_TAG)) {
         removeChild(bodyB->getNode());
-
+        hitLogic();
     }
-    
+    else if ((bodyA->getTag() == TURD_TAG) && (bodyB->getTag() == ENEMY_TAG)) {
+        removeChild(bodyA->getNode());
+        hitLogic();
+    }
+    else if ((bodyA->getTag() == ENEMY_TAG) && (bodyB->getTag() == ENEMY_TAG)) {
+        return false;
+    }
+    else if ((bodyA->getTag() == ENEMY_TAG) && (bodyB->getTag() == ENEMY_TAG)) {
+        return false;
+    }
     return true;
 }
 
@@ -113,7 +139,7 @@ bool GameplayScene::init()
     
     //initalize score
     score = 0;
-    timeOnScreen = 4;
+    timeOnScreen = 3;
     enemySpawnRate = 30;
     runningSpeed = 10;
     
@@ -123,7 +149,7 @@ bool GameplayScene::init()
     auto roofNode = Node::create();
     CCSize winSize = CCDirector::getInstance()->getWinSize();
     
-    auto floorPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
+    auto floorPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 5));
     floorPhysicsBody->setDynamic(false);
     floorPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     floorPhysicsBody->setTag(0);
@@ -137,7 +163,7 @@ bool GameplayScene::init()
     leftWallPhysicsBody->setTag(3);
     leftWallNode->setPosition(Vec2(origin.x, winSize.height/2 + origin.y));
     leftWallNode->setPhysicsBody(leftWallPhysicsBody);
-    this->addChild(leftWallNode, 1);
+    //this->addChild(leftWallNode, 1);
     
     auto roofPhysicsBody = PhysicsBody::createEdgeBox(Size(winSize.width, 1));
     roofPhysicsBody->setDynamic(false);
@@ -165,12 +191,14 @@ bool GameplayScene::init()
     contactListener->onContactBegin = CC_CALLBACK_1(GameplayScene::onContactBegin, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
     
+    
+    
     //Tap event
     auto listener1 = EventListenerTouchOneByOne::create();
     // trigger when you push down
     listener1->onTouchBegan = [=](Touch* touch, Event* event){
         CCLOG("onTouchBegan");
-        mySprite->getPhysicsBody()->setVelocity(Vec2(0,170));
+        mySprite->getPhysicsBody()->setVelocity(Vec2(0,100));
         return true;
     };
     // trigger when moving touch
@@ -196,17 +224,21 @@ bool GameplayScene::init()
     this->schedule(schedule_selector(GameplayScene::scoreTimer), 0.001);
     this->scheduleUpdate();
    
+    spawnEnemySprite();
+    
     return true;
 }
 
 void GameplayScene::update(float delta){
-    CCLOG("updating");
+    //CCLOG("updating");
     
     cocos2d::Vec2 bg1Pos = _bg1->getPosition();
     cocos2d::Vec2 bg2Pos = _bg2->getPosition();
+    int speed = (getContentSize().width/(timeOnScreen/2))/100;
     
-    bg1Pos.x -= kScrollSpeed;
-    bg2Pos.x -= kScrollSpeed;
+    bg1Pos.x -= speed;
+    bg2Pos.x -= speed;
+    //CCLOG("%f / %f = %f",getContentSize().width, timeOnScreen, (getContentSize().width/timeOnScreen));
     
     // move scrolling background back from left to right end to achieve "endless" scrolling
     if (bg1Pos.x < -(_bg1->getContentSize().width))
@@ -224,7 +256,7 @@ void GameplayScene::update(float delta){
 
 void GameplayScene::scoreTimer(float delta){
     time = time + 1;
-    CCLOG("%d", time);
+    //CCLOG("%d", time);
     if (touchedGround) {
         label->setString(std::to_string(score));
         score = score + 10;
@@ -232,6 +264,7 @@ void GameplayScene::scoreTimer(float delta){
     if (time % enemySpawnRate == 0) {
         CCLOG("Spawn enemy");
         spawnRandomSprite(delta);
+        //spawnEnemySprite();
     }
     if (time % runningSpeed == 0) {
         decreaseTimeOnScreen(delta);
@@ -240,7 +273,7 @@ void GameplayScene::scoreTimer(float delta){
 }
 
 void GameplayScene::decreaseTimeOnScreen(float delta){
-    #define changeInSpeed 0.01
+    #define changeInSpeed 0.05
     if (timeOnScreen - changeInSpeed > 1) {
        timeOnScreen = timeOnScreen - changeInSpeed;
     }
@@ -250,23 +283,60 @@ void GameplayScene::decreaseTimeOnScreen(float delta){
     
 }
 
+void GameplayScene::hitLogic(){
+    
+    CCLOG("Turd Hit!");
+    enemyHitpoints = enemyHitpoints - 1;
+    if (enemyHitpoints == 0) {
+        removeChild(enemySprite);
+        spawnEnemySprite();
+    }
+}
+
+void GameplayScene::spawnEnemySprite(){
+    CCLOG("Spawning enemy");
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    enemyHitpoints = 3;
+    //Enemy Sprite
+    enemySprite = Sprite::create("megaman.png");
+    auto enemyPhysicsBody = PhysicsBody::createBox(Size(enemySprite->getSpriteFrame()->getRect().getMaxX(), enemySprite->getSpriteFrame()->getRect().getMaxY()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    enemyPhysicsBody->setGravityEnable(true);
+    enemyPhysicsBody->setRotationEnable(false);
+    enemyPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
+    enemyPhysicsBody->setTag(5);
+    enemySprite->setPosition(Vec2(origin.x + enemySprite->getSpriteFrame()->getRect().getMaxX(), origin.y + enemySprite->getSpriteFrame()->getRect().getMaxY()));
+    enemySprite->setPhysicsBody(enemyPhysicsBody);
+    enemySprite->setScale(2.0);
+    
+    auto moveBy = MoveBy::create(0.5, Vec2(10, 0));
+    auto repeatForever = cocos2d::RepeatForever::create(moveBy);
+    enemySprite->runAction(repeatForever);
+    
+    this->addChild(enemySprite, 1);
+}
+
 void GameplayScene::spawnTurdSprite(cocos2d::PhysicsBody* playerBody){
     CCLOG("Spawning turd!");
     auto turdSprite = Sprite::create("poopy.png");
     Size visibleSize = Director::getInstance()->getVisibleSize();
-    
+
     // create a static PhysicsBody
-    auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    auto turdPhysicsBody = PhysicsBody::createBox(Size(turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), turdSprite->getSpriteFrame()->getRect().getMaxY() * turdSprite->getScale()), PhysicsMaterial(0.1f, 1.0f, 0.1f));
     turdPhysicsBody->setGravityEnable(true);
     turdPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     turdPhysicsBody->setTag(4);
     turdSprite->setPhysicsBody(turdPhysicsBody);
     turdSprite->setScale(2.0);
     turdSprite->setPosition(Vec2(playerBody->getPosition().x - turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(), playerBody->getPosition().y));
-    
-    auto moveTo = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
-    turdSprite->runAction(moveTo);
-
+    auto moveTo = MoveTo::create(timeOnScreen, Vec2(-turdSprite->getSpriteFrame()->getRect().getMaxX() * turdSprite->getScale(),turdSprite->getPosition().y));
+    //CCLOG("",visibleSize.width,timeOnScreen,visibleSize.width/timeOnScreen);
+    auto actionMoveDone = CallFunc::create([=](){
+        log("actionDone!");
+        removeChild(turdSprite);
+    });
+    auto seq = Sequence::create(moveTo, actionMoveDone, NULL);
+    turdSprite->runAction(seq);
     this->addChild(turdSprite, 1);
     
     }
@@ -331,12 +401,18 @@ void GameplayScene::spawnRandomSprite(float delta)
     foodPhysicsBody->setRotationEnable(false);
     foodPhysicsBody->setContactTestBitmask(0xFFFFFFFF);
     foodPhysicsBody->setTag(2);
-    foodSprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height - foodSprite->getSpriteFrame()->getRect().getMaxY() * foodSprite->getScale())));
+    foodSprite->setPosition(Vec2(visibleSize.width,  (arc4random() % (int)visibleSize.height/2 - foodSprite->getSpriteFrame()->getRect().getMaxY() * foodSprite->getScale())));
     foodSprite->setPhysicsBody(foodPhysicsBody);
     foodSprite->setScale(2.0);
 
-    auto moveBy = MoveBy::create(timeOnScreen, Vec2(-visibleSize.width,0));
-    foodSprite->runAction(moveBy);
+    auto moveBy = MoveBy::create(timeOnScreen, Vec2(-(visibleSize.width + visibleSize.width/2),0));
+    auto moveTo = MoveTo::create(timeOnScreen*2, Vec2(-foodSprite->getSpriteFrame()->getRect().getMaxX() * foodSprite->getScale(),foodSprite->getPosition().y));
+    auto actionMoveDone = CallFunc::create([=](){
+        log("actionDone!");
+        removeChild(foodSprite);
+    });
+    auto seq = Sequence::create(moveTo, actionMoveDone, NULL);
+    foodSprite->runAction(seq);
     foodSprite->setAnchorPoint(Vec2(1, 0.5));
     
     this->addChild(foodSprite, 1);
